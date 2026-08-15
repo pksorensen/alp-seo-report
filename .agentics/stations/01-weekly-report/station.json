@@ -1,0 +1,8 @@
+{
+  "id": "todo",
+  "name": "Ugerapport",
+  "trigger": {
+    "type": "dispatch_worker",
+    "autoGit": true
+  }
+}

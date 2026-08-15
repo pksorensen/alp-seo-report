@@ -1,0 +1,6 @@
+{
+  "createTask": {
+    "title": "SEO-ugerapport",
+    "description": "Kør den ugentlige SEO-scanning og skriv rapporten. Ingen ekstra input nødvendigt — stationen finder selv tracker-mappen i repoet."
+  }
+}

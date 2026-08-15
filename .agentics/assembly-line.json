@@ -1,0 +1,5 @@
+{
+  "name": "Ugentlig SEO-rapport",
+  "description": "Scanner sitet, sammenligner med sidste måling og skriver en dansk ugerapport: executive summary med dom over om vi bevæger os mod målet, ændringer siden sidst, det der går godt, og hvad der bør rettes.",
+  "version": "0.1.0"
+}
