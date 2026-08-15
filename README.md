@@ -9,8 +9,14 @@ historikken — ligger i det projekt linjen importeres på. Det her repo er vær
 
 ## Importér den
 
-På agentics.dk: **Import assembly line** → peg på `https://github.com/pksorensen/alp-seo-report`.
-Linjen har én station, `Ugerapport`. Der skal ikke sættes noget op i den.
+På agentics.dk, med repoet allerede udfyldt:
+
+```
+https://agentics.dk/import?repo=https://github.com/pksorensen/alp-seo-report
+```
+
+Vælg projektet, importér. Linjen har én station, `Ugerapport`; der skal ikke sættes noget
+op i den. Importen læser repoet uden token, så linje-repoet skal være offentligt.
 
 Projektet skal have et git-repo tilknyttet (`gitUrl`), for det er dét repo jobbet
 kloner og skriver rapporten tilbage til.

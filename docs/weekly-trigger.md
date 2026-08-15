@@ -50,6 +50,19 @@ systemctl list-timers seo-ugerapport.timer
 `Persistent=true` betyder at en fredag hvor maskinen var slukket, indhentes ved næste
 opstart. Det er det man vil have: rapporten er ugentlig, ikke punktlig.
 
+## Diskplads på runner-maskinen
+
+Runneren kloner projektets repo til `/tmp/pks-runner-tasks/<taskId>`, og `taskId` er ny
+hver gang. Det er en fuld arbejdskopi pr. kørsel, som ikke ryddes op af sig selv. Med et
+repo i hundredmegabyte-klassen og en kørsel om ugen er det et par gigabyte om året — og
+ligger `/tmp` på en tmpfs, er det RAM.
+
+Kør derfor runneren et sted hvor `/tmp` er disk, og ryd op. En `tmpfiles.d`-regel er nok:
+
+```
+d /tmp/pks-runner-tasks 0755 poul poul 14d
+```
+
 ## Alternativ: GitHub Actions
 
 Hvis man hellere vil have triggeren til at bo hos GitHub, tager opgave-endpointet også
