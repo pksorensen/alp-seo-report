@@ -8,7 +8,7 @@
 //   node report-site.mjs --data … --date 2026-09-15  # a specific snapshot
 //   node report-site.mjs --data … --vs 2026-08-15    # against a chosen earlier snapshot
 
-import { readFile, writeFile, readdir } from 'node:fs/promises';
+import { readFile, writeFile, readdir, mkdir } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -37,7 +37,9 @@ const METRICS = [
   ['Sider med engelsk skabelon i title/beskrivelse', (s) => s.areas.titlesAndMeta.pagesWithEnglishTemplate.length, 'down'],
   ['Sider med forkert domæne i title', (s) => s.areas.titlesAndMeta.pagesWithWrongBrandInTitle.length, 'down'],
   ['Sider uden meta-beskrivelse', (s) => s.areas.titlesAndMeta.missingDescription.length, 'down'],
-  ['Planlagte landingssider der findes', (s) => s.areas.landingPages?.live ?? 0, 'up'],
+  // null, not 0, when the area is absent: an older snapshot did not measure this,
+  // and reporting that as zero turns "we started counting" into "+3, well done".
+  ['Planlagte landingssider der findes', (s) => s.areas.landingPages?.live ?? null, 'up'],
   ['Sider med hreflang i <head>', (s) => s.areas.hreflang.pagesWithHeadHreflang, 'up'],
   // The post-sitemap also carries the blog index page, so this is one higher than the
   // number of actual articles in the table further down. Labelled to match.
@@ -61,8 +63,11 @@ const METRICS = [
   ['Sider uden H1', (s) => s.areas.headings.pagesWithoutH1.length, 'down'],
 ];
 
-function deltaCell(now, before, good) {
-  if (before === null || before === undefined) return '—';
+function deltaCell(now, before, good, hasPrev) {
+  if (now === null || now === undefined) return '—';
+  // No previous snapshot at all is a different thing from a previous snapshot
+  // that did not carry this metric — the second one must not read as progress.
+  if (before === null || before === undefined) return hasPrev ? 'ny måling' : '—';
   const d = now - before;
   if (d === 0) return 'uændret';
   const better = good === 'up' ? d > 0 : d < 0;
@@ -98,7 +103,7 @@ L.push('|---|---:|---:|---|');
 for (const [label, fn, good] of METRICS) {
   const now = fn(cur);
   const before = prev ? fn(prev) : null;
-  L.push(`| ${label} | ${now} | ${before ?? '—'} | ${deltaCell(now, before, good)} |`);
+  L.push(`| ${label} | ${now ?? '—'} | ${before ?? '—'} | ${deltaCell(now, before, good, Boolean(prev))} |`);
 }
 L.push('');
 
@@ -235,6 +240,9 @@ if (a.linking.pagesLeakingToSiblingDomains.length) {
   L.push('');
 }
 
+// A tracker that has never been reported on has no reports/ — the first run on a
+// new project must create it rather than fall over.
+await mkdir(join(DATA, 'reports'), { recursive: true });
 const out = join(DATA, 'reports', `site-${date}.md`);
 await writeFile(out, L.join('\n') + '\n');
 console.log(out);
