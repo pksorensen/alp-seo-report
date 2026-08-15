@@ -18,6 +18,12 @@ Der er to repoer i spil:
 
 Scanneren er afhængighedsfri og kræver kun Node 20+. Der skal ikke installeres noget.
 
+**Finder du ingen `config.json` med et `site`-felt: stop og meld fejl.** Så er data-repoet
+ikke klonet, eller projektets `gitUrl` peger et forkert sted hen. En mislykket klon er
+ikke fatal for jobbet — du kan altså stå i en tom mappe uden at have fået en fejl at vide.
+Scan ingenting, opfind ikke et site, og skriv ingen rapport. Meld tilbage hvad du fandt i
+arbejdsmappen, så det kan rettes.
+
 ## Trin 1 — mål
 
 ```
