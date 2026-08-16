@@ -18,6 +18,9 @@ https://agentics.dk/import?repo=https://github.com/pksorensen/alp-seo-report
 Vælg projektet, importér. Linjen har én station, `Ugerapport`; der skal ikke sættes noget
 op i den. Importen læser repoet uden token, så linje-repoet skal være offentligt.
 
+Importen tilbyder to ting, begge tændt fra start: en **startopgave**, så den første
+rapport kører med det samme, og en **tidsplan** — hver fredag kl. 07:00 dansk tid.
+
 Projektet skal have et git-repo tilknyttet (`gitUrl`), for det er dét repo jobbet
 kloner og skriver rapporten tilbage til.
 
@@ -65,16 +68,16 @@ Ingen npm-afhængigheder, Node 20+. Scanneren er ren HTTP GET mod offentlige sid
 
 ## Ugentlig kørsel
 
-Platformen har ingen scheduler. Triggeren kommer udefra — en systemd-timer om fredagen
-på maskinen der kører runneren:
+Tidsplanen står i `.agentics/init.json` og sættes op af importen. Platformen opretter
+selv opgaven hver fredag kl. 07:00 `Europe/Copenhagen` — der skal ikke installeres cron
+eller systemd-timer nogen steder.
 
-```
-pks agentics task submit \
-  --assembly-line-url https://agentics.dk/p/<owner>/<projekt>/assembly-lines/<id> \
-  --title "SEO-ugerapport uge $(date +%V)"
-```
+Den kan ses og ændres under `Assembly line → Settings → Schedule`, hvor der også er en
+**Run now**-knap der kører den samme vej som fredagen gør, uden at bruge ugens kørsel op.
 
-Se `docs/weekly-trigger.md`.
+Runneren skal stadig køre på projektet: platformen laver opgaven, runneren laver
+arbejdet. Se `docs/weekly-trigger.md` — også for hvordan triggeren i stedet kan bo i
+en systemd-timer eller i GitHub Actions, hvis fredagen skal afhænge af andet end klokken.
 
 ## Hvad den ikke måler
 
