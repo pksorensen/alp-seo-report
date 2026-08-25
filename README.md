@@ -15,8 +15,22 @@ På agentics.dk, med repoet allerede udfyldt:
 https://agentics.dk/import?repo=https://github.com/pksorensen/alp-seo-report
 ```
 
-Vælg projektet, importér. Linjen har én station, `Ugerapport`; der skal ikke sættes noget
-op i den. Importen læser repoet uden token, så linje-repoet skal være offentligt.
+Vælg projektet, importér. Linjen har tre stationer og der skal ikke sættes noget op i
+dem: **Ugerapport** er den der arbejder — opgaven lander der, og kun der kører der et
+job. **Rapport klar** og **Fejlet** er endestationer uden trigger; opgaven flyttes selv
+dertil af linjens to overgange, alt efter om jobbet melder `success` eller `failure`.
+Det er hele pointen med at have tre kolonner: tavlen skal kunne svare på "kørte den, og
+gik det godt" uden at nogen åbner et job.
+
+Melder jobbet hverken det ene eller det andet — timeout, idle timeout, afbrudt session —
+flytter platformen **ikke** opgaven. Den bliver stående på `Ugerapport` med sin
+konklusion på kortet, og det er det rigtige signal: agenten nåede aldrig at fælde en dom,
+så rapporten kan ikke antages skrevet. Derfor har stationen også besked på altid at
+afslutte med `stop_broadcast`, og derfor står dens idle timeout på 30 minutter — scanningen
+er tavs i 10-15 minutter ad gangen, og runnerens standard på 2 minutter slår den ihjel
+midt i arbejdet.
+
+Importen læser repoet uden token, så linje-repoet skal være offentligt.
 
 Importen tilbyder to ting, begge tændt fra start: en **startopgave**, så den første
 rapport kører med det samme, og en **tidsplan** — hver fredag kl. 07:00 dansk tid.

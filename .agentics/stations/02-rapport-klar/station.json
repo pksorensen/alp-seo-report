@@ -1,0 +1,5 @@
+{
+  "id": "done",
+  "name": "Rapport klar",
+  "trigger": { "type": "none" }
+}

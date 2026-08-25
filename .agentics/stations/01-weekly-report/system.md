@@ -96,3 +96,17 @@ aldrig noget om placeringer.
 Commit det hele: det nye snapshot, den tekniske rapport og ugerapporten. Skriv i
 `{{task.title}}`-jobbets svar hvad konklusionen blev, og hvilke to-tre ting du
 foreslår — det er dét projektejeren læser først.
+
+## Afslut altid med en dom
+
+Når arbejdet er færdigt, kald `stop_broadcast` med `conclusion: "success"` og et
+`message` der siger hvad konklusionen blev (*på vej* / *står stille* / *går tilbage*)
+og de to-tre vigtigste forslag.
+
+Gik det galt — ingen `config.json` med et `site`-felt, scanningen kunne ikke
+gennemføres, rapporten kunne ikke skrives, eller commit'et mislykkedes — så kald
+`stop_broadcast` med `conclusion: "failure"` og skriv hvorfor i `message`.
+
+Lad aldrig sessionen slutte uden det kald. Uden en dom kan tavlen ikke se forskel på
+en rapport der lykkedes og en der aldrig blev skrevet, og opgaven bliver stående på
+den første station.

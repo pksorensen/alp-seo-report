@@ -1,1 +1,4 @@
-[]
+[
+  { "from": "todo", "to": "done", "condition": "success" },
+  { "from": "todo", "to": "failed", "condition": "failure" }
+]
