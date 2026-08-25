@@ -8,9 +8,16 @@ udgangspunkt:
 "schedule": {
   "name": "Ugentlig SEO-rapport",
   "cadence": { "kind": "weekly", "weekday": "friday", "hour": 7, "minute": 0, "timeZone": "Europe/Copenhagen" },
-  "task": { "title": "SEO-ugerapport", "description": "…" }
+  "task": { "title": "SEO-ugerapport uge {{week}} ({{date}})", "description": "…" }
 }
 ```
+
+Titlen er en skabelon. `{{week}}` (ISO-ugenummer), `{{isoWeek}}` (`2026-W35`),
+`{{date}}` og `{{year}}` udfyldes når opgaven oprettes, og ugen regnes på den
+lokale kalender i planens egen tidszone. Uden dem hedder hvert eneste kort det
+samme, og tavlen kan ikke vise hvad der er nyest. Kører en catch-up et døgn for
+sent, hedder kortet stadig den uge det dækkede — navnet følger det planlagte
+slot, ikke det øjeblik platformen nåede frem.
 
 Der skal altså ikke installeres noget på runner-maskinen. Platformen opretter
 opgaven i linjens første station på det aftalte tidspunkt og sender den videre

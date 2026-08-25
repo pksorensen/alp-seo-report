@@ -1,6 +1,6 @@
 {
   "createTask": {
-    "title": "SEO-ugerapport",
+    "title": "SEO-ugerapport uge {{week}} ({{date}})",
     "description": "Kør den ugentlige SEO-scanning og skriv rapporten. Ingen ekstra input nødvendigt — stationen finder selv tracker-mappen i repoet."
   },
   "schedule": {
@@ -13,7 +13,7 @@
       "timeZone": "Europe/Copenhagen"
     },
     "task": {
-      "title": "SEO-ugerapport",
+      "title": "SEO-ugerapport uge {{week}} ({{date}})",
       "description": "Kør den ugentlige SEO-scanning og skriv rapporten. Ingen ekstra input nødvendigt — stationen finder selv tracker-mappen i repoet."
     }
   }
