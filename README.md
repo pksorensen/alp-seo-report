@@ -78,6 +78,7 @@ En tracker-mappe — navnet er lige meget, stationen finder den — med:
 node tools/scan-site.mjs  --data /sti/til/tracker    # ~10 min, honorerer Crawl-delay
 node tools/report-site.mjs --data /sti/til/tracker   # → reports/site-<dato>.md
 node tools/a4-report.mjs   --data /sti/til/tracker   # → weekly/<dato>-a4.html
+node tools/a4-pdf.mjs      --data /sti/til/tracker   # → weekly/<dato>-a4.pdf
 ```
 
 Ingen npm-afhængigheder, Node 20+. Scanneren er ren HTTP GET mod offentlige sider.
@@ -93,6 +94,7 @@ forfra — så layoutet er frosset i data-repoet og ugen leverer kun ordene:
 | Designet | `<tracker>/templates/a4.html` | mennesker, sjældent |
 | Ugens indhold | `<tracker>/weekly/<dato>-a4.json` | stationen, hver uge |
 | Resultatet | `<tracker>/weekly/<dato>-a4.html` | `a4-report.mjs` |
+| Trykket | `<tracker>/weekly/<dato>-a4.pdf` | `a4-pdf.mjs`, via den delte browser |
 
 Skabelonen er almindelig HTML med `{{felt}}`, `{{#liste}}…{{/liste}}` og `{{^tom}}…{{/tom}}`.
 Et `{{felt}}` uden værdi er en fejl der stopper kørslen — en halvt udfyldt A4 ser færdig
@@ -100,9 +102,16 @@ ud og er forkert. Et afsnit uden værdi er derimod bare udeladt: sektionerne *er
 mekanismen for et valgfrit felt. Værdier bliver escaped, og `**sådan**` er den eneste
 markup der slipper igennem.
 
-PDF hører ikke til her. HTML'en bærer `@page { size: A4 portrait }`, så browseren laver
-den — at putte en headless Chromium i stationens container ville koste minutter på hver
-ugentlig provisionering for et trin man tager én gang.
+PDF'en trykkes af `a4-pdf.mjs`, og det afgørende er hvor Chromium står: den kalder
+[pks-agent-browser](https://browser.agentics.dk), én delt browser som service, i stedet
+for at installere en i stationens container ved hver ugentlige provisionering. Kaldet
+sender **HTML'en selv** (`html`, ikke `url`), så dokumentet aldrig behøver at ligge
+offentligt for at kunne trykkes, og `@page { size: A4 portrait }` i skabelonen bestemmer
+papiret.
+
+Trinnet kræver `BROWSER_URL` og `BROWSER_TOKEN` i stationens miljø. Mangler de, springes
+det over med exit 0 — HTML'en er stadig gyldig, og linjen skal kunne køre på et projekt
+uden browser-service.
 
 ## Ugentlig kørsel
 

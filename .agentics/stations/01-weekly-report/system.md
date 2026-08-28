@@ -114,7 +114,16 @@ Fri tekst i felterne bliver escaped; `**sådan**` er den eneste markup der virke
 giver fed skrift. Filen med tallene (`-a4.json`) committes sammen med den færdige
 `-a4.html`, så næste uge kan se hvad der stod.
 
-PDF laves ikke af linjen — HTML'en har `@page: A4`, så den printes til PDF fra browseren.
+Kør til sidst:
+
+```
+node /tmp/seo-tool/tools/a4-pdf.mjs --data <tracker>
+```
+
+Den trykker HTML'en til PDF med den delte browser-service i stedet for en Chromium i din
+egen container. Er `BROWSER_URL`/`BROWSER_TOKEN` ikke sat i miljøet, siger den det og
+stopper med succes — så er HTML'en resultatet, og du skriver i konklusionen at PDF'en
+mangler. Både `-a4.html`, `-a4.json` og `-a4.pdf` committes.
 
 ## Det du IKKE kan se — skriv det i rapporten
 
@@ -130,7 +139,7 @@ aldrig noget om placeringer.
 
 ## Til sidst
 
-Commit det hele: det nye snapshot, den tekniske rapport, ugerapporten og A4'ens to
+Commit det hele: det nye snapshot, den tekniske rapport, ugerapporten og A4'ens tre
 filer. Skriv i
 `{{task.title}}`-jobbets svar hvad konklusionen blev, og hvilke to-tre ting du
 foreslår — det er dét projektejeren læser først.
