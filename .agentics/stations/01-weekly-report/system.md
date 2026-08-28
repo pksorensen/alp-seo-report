@@ -121,9 +121,13 @@ node /tmp/seo-tool/tools/a4-pdf.mjs --data <tracker>
 ```
 
 Den trykker HTML'en til PDF med den delte browser-service i stedet for en Chromium i din
-egen container. Er `BROWSER_URL`/`BROWSER_TOKEN` ikke sat i miljøet, siger den det og
-stopper med succes — så er HTML'en resultatet, og du skriver i konklusionen at PDF'en
-mangler. Både `-a4.html`, `-a4.json` og `-a4.pdf` committes.
+egen container, og skaffer selv sin adgang: den veksler jobbets `AGENTICS_TOKEN` til et
+kortlivet token hos platformen. Du skal ikke sætte noget op.
+
+Siger den, at den er sprunget over, eller at et fødereret token blev afvist, så er det et
+opsætningsforhold og ikke en fejl i ugens arbejde: skriv i konklusionen at PDF'en mangler
+og hvad den skrev, og gå videre. HTML'en er stadig resultatet. Både `-a4.html`,
+`-a4.json` og `-a4.pdf` (når den findes) committes.
 
 ## Det du IKKE kan se — skriv det i rapporten
 

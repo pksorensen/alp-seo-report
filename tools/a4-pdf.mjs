@@ -11,12 +11,20 @@
 //   node a4-pdf.mjs --data …                    # nyeste ugerapport
 //   node a4-pdf.mjs --data … --date 2026-08-28
 //
-// Kræver to variable i miljøet. Er de der ikke, springes trinnet over med besked og
+// Adgangen kommer helst fra føderationen. Kører det her som et job på en linje,
+// har runneren allerede givet os `AGENTICS_TOKEN` og `AGENTICS_JOB_ID`, og
+// platformen veksler dem til et 5-minutters token udstedt til netop denne
+// browser-service — samme model som npm's trusted publishers. Så er der ingen
+// langlivet hemmelighed i containeren overhovedet, og ejeren styrer adgangen ét
+// sted, i sin tillidsbinding hos browser-servicen.
+//
+//   BROWSER_URL     fx https://browser.agentics.dk  (den eneste der er påkrævet)
+//   BROWSER_TOKEN   statisk API-token, reserven når vi ikke kører som et job
+//                   (BROWSER_API_TOKEN accepteres også)
+//
+// Er der hverken det ene eller det andet, springes trinnet over med besked og
 // exit 0: HTML'en er stadig gyldig, og linjen skal kunne køre på et projekt uden
 // browser-service.
-//
-//   BROWSER_URL     fx https://browser.agentics.dk
-//   BROWSER_TOKEN   servicens API-token (BROWSER_API_TOKEN accepteres også)
 //
 // Afhængighedsfri som resten af tools/: `fetch` er indbygget fra Node 18.
 
@@ -47,9 +55,46 @@ const env = (name) => {
 };
 
 const base = env('BROWSER_URL').replace(/\/+$/, '');
-const token = env('BROWSER_TOKEN') || env('BROWSER_API_TOKEN');
 if (!base) skip('BROWSER_URL er ikke sat.');
-if (!token) skip('BROWSER_TOKEN er ikke sat.');
+
+// Veksler runnerens jobtoken til et kortlivet token udstedt til præcis denne
+// modtager. Platformen tjekker selv at runneren sidder på et aktivt job på en
+// station; browser-servicen tjekker bagefter at ejeren har bundet linjen til
+// `browser:render`. Går noget af det galt, siger vi hvad — og prøver reserven.
+async function federatedToken() {
+    const agentics = env('AGENTICS_BASE_URL').replace(/\/+$/, '');
+    const runnerToken = env('AGENTICS_TOKEN');
+    const jobId = env('AGENTICS_JOB_ID');
+    const owner = env('AGENTICS_OWNER');
+    const project = env('AGENTICS_PROJECT_NAME');
+    if (!agentics || !runnerToken || !jobId || !owner || !project) return null;
+
+    const url = `${agentics}/api/owners/${encodeURIComponent(owner)}/projects/${encodeURIComponent(project)}/federation/token`;
+    const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', authorization: `Bearer ${runnerToken}` },
+        body: JSON.stringify({ audience: base, scope: ['browser:render'], jobId }),
+    }).catch((e) => {
+        console.log(`Kunne ikke nå ${url}: ${e.message}`);
+
+        return null;
+    });
+    if (!res) return null;
+    if (!res.ok) {
+        const detail = await res.text().catch(() => '');
+        console.log(`Fødereret token afvist (${res.status}): ${detail.slice(0, 200)}`);
+
+        return null;
+    }
+
+    const body = await res.json().catch(() => ({}));
+
+    return body.access_token || null;
+}
+
+const federated = await federatedToken();
+const token = federated || env('BROWSER_TOKEN') || env('BROWSER_API_TOKEN');
+if (!token) skip('hverken fødereret veksling eller BROWSER_TOKEN er tilgængelig.');
 
 let date = arg('date', null);
 if (!date) {
@@ -99,4 +144,4 @@ const buf = Buffer.from(result.base64, 'base64');
 if (buf.subarray(0, 4).toString('latin1') !== '%PDF') die('Svaret var ikke en PDF.');
 
 await writeFile(outPath, buf);
-console.log(`${outPath} (${buf.length} bytes, ${result.ms} ms)`);
+console.log(`${outPath} (${buf.length} bytes, ${result.ms} ms, ${federated ? 'fødereret' : 'BROWSER_TOKEN'})`);

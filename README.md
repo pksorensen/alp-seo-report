@@ -109,9 +109,22 @@ sender **HTML'en selv** (`html`, ikke `url`), så dokumentet aldrig behøver at 
 offentligt for at kunne trykkes, og `@page { size: A4 portrait }` i skabelonen bestemmer
 papiret.
 
-Trinnet kræver `BROWSER_URL` og `BROWSER_TOKEN` i stationens miljø. Mangler de, springes
-det over med exit 0 — HTML'en er stadig gyldig, og linjen skal kunne køre på et projekt
-uden browser-service.
+Adgangen kommer helst fra føderationen, og så er `BROWSER_URL` det eneste der skal
+sættes. Kører trinnet som et job på en linje, har runneren allerede lagt
+`AGENTICS_TOKEN` og `AGENTICS_JOB_ID` i miljøet; værktøjet veksler dem hos platformen
+til et token der lever i fem minutter og kun gælder browser-servicen, og browseren slår
+det op mod ejerens tillidsbinding for netop denne linje. Det er samme model som npm's
+trusted publishers, og pointen er at der ikke står nogen langlivet hemmelighed i
+containeren — hvilket er godt, for linjens eneste env-kanal er devcontainer-filen, og den
+kan eksporteres til dette offentlige repo.
+
+Ejeren skal derfor have skrevet bindingen én gang hos browser-servicen — se
+[Fødereret tillid](https://github.com/pksorensen/pks-agent-browser#fødereret-tillid);
+scopet er `browser:render`.
+
+`BROWSER_TOKEN` er reserven, til at køre trinnet i hånden uden for et job. Er hverken
+det ene eller det andet tilgængeligt, springes trinnet over med exit 0 — HTML'en er
+stadig gyldig, og linjen skal kunne køre på et projekt uden browser-service.
 
 ## Ugentlig kørsel
 
