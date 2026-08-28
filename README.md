@@ -47,6 +47,7 @@ En tracker-mappe — navnet er lige meget, stationen finder den — med:
 | `config.json` | **ja** | Hvilket site, hvilke sider, hvilke mønstre der tælles som fejl. Feltet `site` er det stationen genkender mappen på. |
 | `goal.md` | anbefalet | Det ugerapportens executive summary dømmer imod. Uden den kan stationen ikke svare "bevæger vi os mod målet" og siger det i stedet ligeud. |
 | `changes.jsonl` | anbefalet | Én linje pr. udført ændring. Det er den eneste kobling mellem en bevægelse i tallene og en årsag — uden den kan fremgang ikke tilskrives nogen. |
+| `templates/a4.html` | nej | Projektets egen A4-skabelon. Findes den, sætter stationen ugens etsides-status i den; findes den ikke, springes trinet over. Design og brand hører til i data-repoet, ikke her — se nedenfor. |
 | `snapshots/`, `reports/`, `weekly/` | nej | Oprettes af kørslen. |
 
 ### config.json
@@ -76,9 +77,32 @@ En tracker-mappe — navnet er lige meget, stationen finder den — med:
 ```bash
 node tools/scan-site.mjs  --data /sti/til/tracker    # ~10 min, honorerer Crawl-delay
 node tools/report-site.mjs --data /sti/til/tracker   # → reports/site-<dato>.md
+node tools/a4-report.mjs   --data /sti/til/tracker   # → weekly/<dato>-a4.html
 ```
 
 Ingen npm-afhængigheder, Node 20+. Scanneren er ren HTTP GET mod offentlige sider.
+
+## A4'en
+
+Markdown-rapporten er journalen; A4'en er den man sender videre. Den blev tegnet i
+hånden den første uge og ville blive et nyt dokument hver gang en agent tegnede den
+forfra — så layoutet er frosset i data-repoet og ugen leverer kun ordene:
+
+| | Hvor | Hvem skriver den |
+|---|---|---|
+| Designet | `<tracker>/templates/a4.html` | mennesker, sjældent |
+| Ugens indhold | `<tracker>/weekly/<dato>-a4.json` | stationen, hver uge |
+| Resultatet | `<tracker>/weekly/<dato>-a4.html` | `a4-report.mjs` |
+
+Skabelonen er almindelig HTML med `{{felt}}`, `{{#liste}}…{{/liste}}` og `{{^tom}}…{{/tom}}`.
+Et `{{felt}}` uden værdi er en fejl der stopper kørslen — en halvt udfyldt A4 ser færdig
+ud og er forkert. Et afsnit uden værdi er derimod bare udeladt: sektionerne *er*
+mekanismen for et valgfrit felt. Værdier bliver escaped, og `**sådan**` er den eneste
+markup der slipper igennem.
+
+PDF hører ikke til her. HTML'en bærer `@page { size: A4 portrait }`, så browseren laver
+den — at putte en headless Chromium i stationens container ville koste minutter på hver
+ugentlig provisionering for et trin man tager én gang.
 
 ## Ugentlig kørsel
 

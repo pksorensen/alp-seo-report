@@ -79,6 +79,43 @@ Højst 5 punkter, sorteret så det med størst effekt på målet står øverst. 
 skal have: hvad der er galt, hvor mange sider/URL'er det rammer (tal fra rapporten),
 og hvad handlingen konkret er. Ingen generiske SEO-råd. Ingen forslag uden tal bag.
 
+## Trin 3 — sæt ugens A4
+
+Markdown-rapporten er journalen. A4'en er den der bliver sendt videre til en der ikke
+læser tabeller. Layoutet er låst i `<tracker>/templates/a4.html` og må **ikke** ændres —
+du skriver kun ordene. Findes skabelonen ikke i data-repoet, så spring trinet over og
+skriv i din konklusion at den mangler.
+
+Skriv `<tracker>/weekly/<dato>-a4.json` og kør:
+
+```
+node /tmp/seo-tool/tools/a4-report.mjs --data <tracker>
+```
+
+Værktøjet fejler hvis et felt mangler — en halvt udfyldt A4 ser færdig ud og er forkert.
+Kopiér feltnavnene fra sidste uges `-a4.json` i samme mappe; de er de samme hver uge.
+Indholdet skal være:
+
+- `verdict` — dommen med stort begyndelsesbogstav (*På vej* / *Står stille* / *Går tilbage*),
+  og `verdictSummary`: to linjer der siger hvorfor, med forbeholdet med.
+- `note` / `noteBody` — sæt kun `note` til `true`, hvis der er noget om
+  sammenligningsgrundlaget læseren skal advares om (kort periode, udfald under målingen).
+- `panels` — præcis to, med tre `stats` i hver. Første panel er milepælene. Andet panel
+  får `"warning": true` og bærer det der er galt eller ikke har rørt sig. `progress` er
+  valgfri og kun meningsfuld på et forholdstal.
+- `highlightTitle` / `highlightBody` — ugens ene vigtigste indsigt, typisk et tal der ser
+  ud som noget andet end det er. `\n` i titlen giver linjeskift.
+- `actions` — præcis tre, i samme rækkefølge og med samme prioritet som forslag 1-3 i
+  markdown-rapporten. Ikke nye forslag.
+- `nextCheck` — hvad der skal være sandt, før vi kalder noget fremgang næste gang.
+- `scope` — hvad målingen dækker, og hvad den ikke ved. Se afsnittet nedenfor.
+
+Fri tekst i felterne bliver escaped; `**sådan**` er den eneste markup der virker, og
+giver fed skrift. Filen med tallene (`-a4.json`) committes sammen med den færdige
+`-a4.html`, så næste uge kan se hvad der stod.
+
+PDF laves ikke af linjen — HTML'en har `@page: A4`, så den printes til PDF fra browseren.
+
 ## Det du IKKE kan se — skriv det i rapporten
 
 Denne måling er teknisk on-page scanning af offentlige sider. Den ved intet om:
@@ -93,7 +130,8 @@ aldrig noget om placeringer.
 
 ## Til sidst
 
-Commit det hele: det nye snapshot, den tekniske rapport og ugerapporten. Skriv i
+Commit det hele: det nye snapshot, den tekniske rapport, ugerapporten og A4'ens to
+filer. Skriv i
 `{{task.title}}`-jobbets svar hvad konklusionen blev, og hvilke to-tre ting du
 foreslår — det er dét projektejeren læser først.
 
@@ -101,7 +139,12 @@ foreslår — det er dét projektejeren læser først.
 
 Når arbejdet er færdigt, kald `stop_broadcast` med `conclusion: "success"` og et
 `message` der siger hvad konklusionen blev (*på vej* / *står stille* / *går tilbage*)
-og de to-tre vigtigste forslag.
+og de to-tre vigtigste forslag. Slut beskeden med stien til ugerapporten og commit-sha'en,
+så kortet på tavlen er et spor der kan følges.
+
+`stop_broadcast` er et *deferred* værktøj: kan du ikke kalde det, så hent det først med
+`ToolSearch` på `select:mcp__plugin_vibecast_vibecast__stop_broadcast`. Gør det **inden**
+du går i gang med den lange scanning, ikke bagefter.
 
 Gik det galt — ingen `config.json` med et `site`-felt, scanningen kunne ikke
 gennemføres, rapporten kunne ikke skrives, eller commit'et mislykkedes — så kald
