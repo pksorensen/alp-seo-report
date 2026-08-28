@@ -37,8 +37,17 @@ const die = (msg) => { console.error(msg); process.exit(1); };
 // lad stationen fortsætte — den nævner selv i rapporten at PDF'en mangler.
 const skip = (msg) => { console.log(`A4-PDF sprunget over: ${msg}`); process.exit(0); };
 
-const base = (process.env.BROWSER_URL || '').replace(/\/+$/, '');
-const token = process.env.BROWSER_TOKEN || process.env.BROWSER_API_TOKEN || '';
+// En variabel der stadig står som `${localEnv:…}` er en devcontainer-substitution der
+// ikke skete. Behandl den som tom, ellers sender vi teksten som token, får 401, og et
+// opsætningsproblem ligner en fejl i ugens arbejde.
+const env = (name) => {
+    const v = process.env[name];
+
+    return !v || /^\$\{.*\}$/.test(v.trim()) ? '' : v;
+};
+
+const base = env('BROWSER_URL').replace(/\/+$/, '');
+const token = env('BROWSER_TOKEN') || env('BROWSER_API_TOKEN');
 if (!base) skip('BROWSER_URL er ikke sat.');
 if (!token) skip('BROWSER_TOKEN er ikke sat.');
 
